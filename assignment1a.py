@@ -77,15 +77,18 @@ cursor.close()
 
 print(f"Data inserted successfully into the 'customer' and 'real_estate' tables.")
 
-output = BytesIO()
-df.to_excel(output, index=False, engine='openpyxl')
-output.seek(0)
 
-s3_client = boto3.client('s3', os.getenv('AWS_ACCESS_KEY_ID'), os.getenv('AWS_SECRET_ACCESS_KEY'))
+# Initialize S3 client with proper arguments
+s3_client = boto3.client('s3',aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'))
 
 bucket_name = 'lirik_traning'
-object_name = 'ojas_costumer_assignment.xlsx'
 
-s3_client.upload_fileobj(output, bucket_name, object_name)
+# Upload the modified customer data file
+customer_object_name = 'modified_customer.csv'
+s3_client.upload_file(csv_file_path, bucket_name, customer_object_name)
+print(f"File '{customer_object_name}' uploaded successfully to S3 bucket '{bucket_name}'.")
 
-print(f"File uploaded successfully to S3 bucket '{bucket_name}' as '{object_name}'")
+# Upload the modified real estate data file
+realstate_object_name = 'modified_realstate.csv'
+s3_client.upload_file(output_file_path, bucket_name, realstate_object_name)
+print(f"File '{realstate_object_name}' uploaded successfully to S3 bucket '{bucket_name}'.")
